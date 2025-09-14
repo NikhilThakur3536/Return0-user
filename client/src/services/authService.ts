@@ -3,7 +3,7 @@
 // File path: src/services/authService.ts
 // =============================================================================
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_BASE_URL;
 
 // Types and Interfaces
 export interface SignupData {
