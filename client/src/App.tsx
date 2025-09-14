@@ -38,17 +38,15 @@ import authService from "./services/authService";
 import tripService from "./services/tripService";
 
 // Types
-import type { ActiveTab, SOSState, GroupMember, Notification } from "./types";
+import type {  SOSState, GroupMember, ExtendedActiveTab } from "./types";
 import type { Trip } from "./services/tripService";
+import type { Notification } from "./types";
 import { useTranslation } from "react-i18next";
 import { supportedLanguages } from "./i18n/languages";
 import PhoneFrame from "./components/layout/PhoneFrame";
 
 // Mapbox access token
 mapboxgl.accessToken = import.meta.env.VITE_REACT_APP_MAPBOX_TOKEN;
-
-// Extended ActiveTab type to include new screens
-type ExtendedActiveTab = ActiveTab | "quickCheckin" | "groupStatus" | "emergencyContacts" | "tripDetails" | "addTrip";
 
 // =============================================================================
 // MAIN APP COMPONENT WRAPPER
@@ -87,7 +85,7 @@ const SmartTouristApp: React.FC = () => {
   const [currentUser, setCurrentUser] = useState(null);
 
   // Trip state
-  const [activeTrip, setActiveTrip] = useState<Trip | null>(null);
+  const [ setActiveTrip] = useState<Trip | null>(null);
   const [hasActiveTrip, setHasActiveTrip] = useState(false);
 
   // Check authentication status on app load
@@ -109,7 +107,7 @@ const SmartTouristApp: React.FC = () => {
           }
         }
       } catch (error) {
-        console.error('Auth check failed:', error);
+        console.error("Auth check failed:", error);
         setIsAuthenticated(false);
         setCurrentUser(null);
       } finally {
@@ -127,7 +125,7 @@ const SmartTouristApp: React.FC = () => {
       setHasActiveTrip(tripStatus.hasActiveTrip);
       setActiveTrip(tripStatus.activeTrip);
     } catch (error) {
-      console.error('Failed to load active trip:', error);
+      console.error("Failed to load active trip:", error);
       setHasActiveTrip(false);
       setActiveTrip(null);
     }
@@ -150,43 +148,7 @@ const SmartTouristApp: React.FC = () => {
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const sosMapRef = useRef<mapboxgl.Map | null>(null);
 
-  const [notifications] = useState<Notification[]>([
-    {
-      id: 1,
-      type: "warning",
-      message: "Approaching unsafe area - Old Town District",
-      time: "2 min ago",
-      priority: "high",
-    },
-    {
-      id: 2,
-      type: "info",
-      message: "Group member Sarah checked in safely at Burj Khalifa",
-      time: "5 min ago",
-      priority: "medium",
-    },
-    {
-      id: 3,
-      type: "success",
-      message: "Welcome to Dubai! Safety protocols activated",
-      time: "1 hour ago",
-      priority: "low",
-    },
-    {
-      id: 4,
-      type: "emergency",
-      message: "Emergency contact updated successfully",
-      time: "2 hours ago",
-      priority: "medium",
-    },
-    {
-      id: 5,
-      type: "health",
-      message: "Heart rate elevated - take a break",
-      time: "3 hours ago",
-      priority: "high",
-    },
-  ]);
+  const [notifications] = useState<Notification[]>([]);
 
   const [groupMembers] = useState<GroupMember[]>([
     {
@@ -224,16 +186,14 @@ const SmartTouristApp: React.FC = () => {
     setIsAuthenticated(true);
     setCurrentUser(authService.getUser());
     await loadActiveTrip(); // Load trip after successful auth
-    navigate('/app'); // Navigate to main app
+    navigate("/app"); // Navigate to main app
   };
 
-  // Note: We don't need handleLogout here anymore as it's handled in ProfileScreen
-  // but we can keep it for any other logout scenarios
   const handleLogout = async () => {
     try {
       await authService.logout();
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
     } finally {
       setIsAuthenticated(false);
       setCurrentUser(null);
@@ -243,11 +203,11 @@ const SmartTouristApp: React.FC = () => {
       setIsDragging(false);
       setHasActiveTrip(false);
       setActiveTrip(null);
-      navigate('/login'); // Navigate to login page
+      navigate("/login"); // Navigate to login page
     }
   };
 
-  // Set up listener for auth state changes (for when user logs out from ProfileScreen)
+  // Set up listener for auth state changes
   useEffect(() => {
     const checkAuthState = () => {
       if (!authService.isAuthenticated() && isAuthenticated) {
@@ -260,7 +220,7 @@ const SmartTouristApp: React.FC = () => {
         setIsDragging(false);
         setHasActiveTrip(false);
         setActiveTrip(null);
-        navigate('/login');
+        navigate("/login");
       }
     };
 
@@ -349,12 +309,12 @@ const SmartTouristApp: React.FC = () => {
         .setLngLat(coords)
         .setPopup(
           new mapboxgl.Popup().setHTML(`
-          <div class="p-2">
-            <h3 class="font-semibold">${member.name}</h3>
-            <p class="text-sm text-gray-600">${member.location}</p>
-            <p class="text-xs text-gray-500">${member.lastSeen}</p>
-          </div>
-        `)
+            <div class="p-2">
+              <h3 class="font-semibold">${member.name}</h3>
+              <p class="text-sm text-gray-600">${member.location}</p>
+              <p class="text-xs text-gray-500">${member.lastSeen}</p>
+            </div>
+          `)
         )
         .addTo(mapRef.current!);
     });

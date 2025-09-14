@@ -17,10 +17,10 @@ import notificationService from "../../services/notificationService";
 
 interface MapScreenProps {
   groupMembers: any[];
+  mapContainer: any
 }
 
-const MapScreen: React.FC<MapScreenProps> = ({ groupMembers }) => {
-  const mapContainer = useRef<HTMLDivElement>(null);
+const MapScreen: React.FC<MapScreenProps> = ({ groupMembers,mapContainer }) => {
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const markerRef = useRef<mapboxgl.Marker | null>(null);
   const geojsonDataRef = useRef<any>(null);
@@ -91,8 +91,8 @@ const MapScreen: React.FC<MapScreenProps> = ({ groupMembers }) => {
       const fetchHazards = async () => {
         try {
           const [resSachet, resLandslide] = await Promise.all([
-            fetch(`${import.meta.env.VITE_BASE_URL}/api/sachet`),
-            fetch(`${import.meta.env.VITE_BASE_URL}/api/landslide`),
+            fetch(`${import.meta.env.VITE_BASE_URL}/sachet`),
+            fetch(`${import.meta.env.VITE_BASE_URL}/landslide`),
           ]);
           const [sachetData, landslideData] = await Promise.all([
             resSachet.json(),

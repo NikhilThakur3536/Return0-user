@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { QrCode, MapPin, Clock, CheckCircle, Camera, Download, Share } from 'lucide-react';
+import { MapPin, Clock, CheckCircle, Camera, Download, Share } from 'lucide-react';
 import Header from '../layout/Header';
 import { toast } from 'react-hot-toast';
 
@@ -55,7 +55,7 @@ const QuickCheckinScreen: React.FC<QuickCheckinScreenProps> = ({
     }
   };
 
-  const QRCodeSVG = ({ value }: { value: string }) => {
+  const QRCodeSVG = () => {
     // Simple QR code placeholder - in a real app, use a QR code library
     return (
       <div className="w-48 h-48 bg-gray-900 rounded-2xl flex items-center justify-center mx-auto">
@@ -124,7 +124,7 @@ const QuickCheckinScreen: React.FC<QuickCheckinScreenProps> = ({
             </p>
           </div>
 
-          <QRCodeSVG value={checkinCode} />
+          <QRCodeSVG  />
 
           <div className="mt-4 p-3 bg-gray-50 rounded-xl">
             <p className="text-xs text-gray-500 text-center font-mono break-all">
@@ -145,7 +145,7 @@ const QuickCheckinScreen: React.FC<QuickCheckinScreenProps> = ({
 
           <div className="grid grid-cols-3 gap-3">
             <button
-              onClick={() => toast.info('Camera feature coming soon')}
+              onClick={() => toast.success('Camera feature coming soon')}
               className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col items-center space-y-2 hover:bg-gray-50 transition-colors"
             >
               <Camera className="text-gray-600" size={24} />
@@ -153,7 +153,7 @@ const QuickCheckinScreen: React.FC<QuickCheckinScreenProps> = ({
             </button>
 
             <button
-              onClick={() => toast.info('Download feature coming soon')}
+              onClick={() => toast.success('Download feature coming soon')}
               className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col items-center space-y-2 hover:bg-gray-50 transition-colors"
             >
               <Download className="text-gray-600" size={24} />

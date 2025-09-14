@@ -1,37 +1,34 @@
-// =============================================================================
-// UPDATED NOTIFICATION SCREEN WITH BACKEND INTEGRATION
-// File path: src/components/screens/NotificationScreen.tsx
-// =============================================================================
-
 import React, { useEffect, useState } from "react";
-import { 
-  AlertTriangle, 
-  Bell, 
-  CheckCircle, 
-  Clock, 
-  Headphones, 
-  Heart, 
-  Phone, 
-  Shield, 
+import {
+  AlertTriangle,
+  Bell,
+  CheckCircle,
+  Clock,
+  Headphones,
+  Heart,
+  Phone,
+  Shield,
   Zap,
   RefreshCw,
-  Filter,
-  Trash2
+  Trash2,
 } from "lucide-react";
 import Header from "../layout/Header";
-import { useTranslation } from "react-i18next";
-import notificationService, { type Notification } from "../../services/notificationService";
+import { type Notification } from "../../types";
+import notificationService from "../../services/notificationService";
 import toast from "react-hot-toast";
 
-const NotificationScreen: React.FC = () => {
-  const { t } = useTranslation();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [refreshing, setRefreshing] = useState(false);
+interface NotificationScreenProps {
+  notifications: Notification[];
+}
 
-  const getNotificationIcon = (type: string) => {
+const NotificationScreen: React.FC<NotificationScreenProps> = ({ notifications }) => {
+  // const { t } = useTranslation();
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const getNotificationIcon = (type: Notification["type"]) => {
     switch (type) {
       case "warning":
         return <AlertTriangle size={20} className="text-orange-600" />;
@@ -41,14 +38,14 @@ const NotificationScreen: React.FC = () => {
         return <Zap size={20} className="text-red-600" />;
       case "health":
         return <Heart size={20} className="text-purple-600" />;
-      case "safety":
-        return <Shield size={20} className="text-blue-600" />;
+      case "info":
+        return <Bell size={20} className="text-blue-600" />;
       default:
         return <Bell size={20} className="text-blue-600" />;
     }
   };
 
-  const getNotificationBgColor = (type: string) => {
+  const getNotificationBgColor = (type: Notification["type"]) => {
     switch (type) {
       case "warning":
         return "bg-orange-100";
@@ -58,14 +55,14 @@ const NotificationScreen: React.FC = () => {
         return "bg-red-100";
       case "health":
         return "bg-purple-100";
-      case "safety":
+      case "info":
         return "bg-blue-100";
       default:
         return "bg-blue-100";
     }
   };
 
-  const getPriorityColor = (priority: string) => {
+  const getPriorityColor = (priority: Notification["priority"]) => {
     switch (priority) {
       case "critical":
         return "text-red-600 bg-red-100";
@@ -81,69 +78,52 @@ const NotificationScreen: React.FC = () => {
   };
 
   const categories = [
-    { key: 'all', label: 'All' },
-    { key: 'safety', label: 'Safety' },
-    { key: 'emergency', label: 'Emergency' },
-    { key: 'health', label: 'Health' },
-    { key: 'travel', label: 'Travel' },
-    { key: 'weather', label: 'Weather' },
+    { key: "all", label: "All" },
+    { key: "info", label: "Info" },
+    { key: "warning", label: "Warning" },
+    { key: "emergency", label: "Emergency" },
+    { key: "health", label: "Health" },
+    { key: "success", label: "Success" },
   ];
 
   const emergencyContacts = [
     {
       icon: Phone,
-      title: 'Emergency Services',
-      subtitle: '999',
-      bgColor: 'bg-red-50 hover:bg-red-100',
-      iconColor: 'text-red-600',
-      textColor: 'text-red-900',
-      subtitleColor: 'text-red-700'
+      title: "Emergency Services",
+      subtitle: "999",
+      bgColor: "bg-red-50 hover:bg-red-100",
+      iconColor: "text-red-600",
+      textColor: "text-red-900",
+      subtitleColor: "text-red-700",
     },
     {
       icon: Shield,
-      title: 'Tourist Police',
-      subtitle: '+971-4-TOURIST',
-      bgColor: 'bg-blue-50 hover:bg-blue-100',
-      iconColor: 'text-blue-600',
-      textColor: 'text-blue-900',
-      subtitleColor: 'text-blue-700'
+      title: "Tourist Police",
+      subtitle: "+971-4-TOURIST",
+      bgColor: "bg-blue-50 hover:bg-blue-100",
+      iconColor: "text-blue-600",
+      textColor: "text-blue-900",
+      subtitleColor: "text-blue-700",
     },
     {
       icon: Heart,
-      title: 'Medical Emergency',
-      subtitle: '+971-800-HEALTH',
-      bgColor: 'bg-green-50 hover:bg-green-100',
-      iconColor: 'text-green-600',
-      textColor: 'text-green-900',
-      subtitleColor: 'text-green-700'
+      title: "Medical Emergency",
+      subtitle: "+971-800-HEALTH",
+      bgColor: "bg-green-50 hover:bg-green-100",
+      iconColor: "text-green-600",
+      textColor: "text-green-900",
+      subtitleColor: "text-green-700",
     },
     {
       icon: Headphones,
-      title: 'Support',
-      subtitle: '24x7 Help',
-      bgColor: 'bg-purple-50 hover:bg-purple-100',
-      iconColor: 'text-purple-600',
-      textColor: 'text-purple-900',
-      subtitleColor: 'text-purple-700'
+      title: "Support",
+      subtitle: "24x7 Help",
+      bgColor: "bg-purple-50 hover:bg-purple-100",
+      iconColor: "text-purple-600",
+      textColor: "text-purple-900",
+      subtitleColor: "text-purple-700",
     },
   ];
-
-  // Load notifications
-  const loadNotifications = async (showLoading = false) => {
-    try {
-      if (showLoading) setLoading(true);
-      
-      const options = selectedCategory !== 'all' ? { category: selectedCategory } : {};
-      const result = await notificationService.getUserNotifications(options);
-      
-      setNotifications(result.notifications);
-    } catch (error) {
-      console.error('Failed to load notifications:', error);
-      toast.error('Failed to load notifications');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Load unread count
   const loadUnreadCount = async () => {
@@ -151,7 +131,7 @@ const NotificationScreen: React.FC = () => {
       const count = await notificationService.getUnreadCount();
       setUnreadCount(count);
     } catch (error) {
-      console.error('Failed to load unread count:', error);
+      console.error("Failed to load unread count:", error);
     }
   };
 
@@ -159,23 +139,11 @@ const NotificationScreen: React.FC = () => {
   const handleMarkAsRead = async (notificationId: string) => {
     try {
       await notificationService.markAsRead(notificationId);
-      
-      // Update local state
-      setNotifications(prev => 
-        prev.map(notif => 
-          notif.id === notificationId 
-            ? { ...notif, isRead: true, readAt: new Date().toISOString() }
-            : notif
-        )
-      );
-      
-      // Update unread count
       await loadUnreadCount();
-      
-      toast.success('Notification marked as read');
+      toast.success("Notification marked as read");
     } catch (error) {
-      console.error('Failed to mark notification as read:', error);
-      toast.error('Failed to mark as read');
+      console.error("Failed to mark notification as read:", error);
+      toast.error("Failed to mark as read");
     }
   };
 
@@ -183,21 +151,11 @@ const NotificationScreen: React.FC = () => {
   const handleMarkAllAsRead = async () => {
     try {
       await notificationService.markAllAsRead();
-      
-      // Update local state
-      setNotifications(prev => 
-        prev.map(notif => ({ 
-          ...notif, 
-          isRead: true, 
-          readAt: new Date().toISOString() 
-        }))
-      );
-      
       setUnreadCount(0);
-      toast.success('All notifications marked as read');
+      toast.success("All notifications marked as read");
     } catch (error) {
-      console.error('Failed to mark all as read:', error);
-      toast.error('Failed to mark all as read');
+      console.error("Failed to mark all as read:", error);
+      toast.error("Failed to mark all as read");
     }
   };
 
@@ -205,20 +163,14 @@ const NotificationScreen: React.FC = () => {
   const handleDeleteNotification = async (notificationId: string) => {
     try {
       await notificationService.deleteNotification(notificationId);
-      
-      // Update local state
-      setNotifications(prev => prev.filter(notif => notif.id !== notificationId));
-      
-      // Update unread count if needed
-      const deletedNotification = notifications.find(n => n.id === notificationId);
+      const deletedNotification = notifications.find((n) => n.id === notificationId);
       if (deletedNotification && !deletedNotification.isRead) {
-        setUnreadCount(prev => Math.max(0, prev - 1));
+        setUnreadCount((prev) => Math.max(0, prev - 1));
       }
-      
-      toast.success('Notification deleted');
+      toast.success("Notification deleted");
     } catch (error) {
-      console.error('Failed to delete notification:', error);
-      toast.error('Failed to delete notification');
+      console.error("Failed to delete notification:", error);
+      toast.error("Failed to delete notification");
     }
   };
 
@@ -226,43 +178,40 @@ const NotificationScreen: React.FC = () => {
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
-      await Promise.all([loadNotifications(), loadUnreadCount()]);
-      toast.success('Notifications refreshed');
+      await loadUnreadCount();
+      toast.success("Notifications refreshed");
     } catch (error) {
-      toast.error('Failed to refresh');
+      toast.error("Failed to refresh");
     } finally {
       setRefreshing(false);
     }
   };
 
-  // Initial load
+  // Initial load for unread count
   useEffect(() => {
-    loadNotifications(true);
     loadUnreadCount();
   }, []);
 
-  // Reload when category changes
-  useEffect(() => {
-    if (!loading) {
-      loadNotifications();
-    }
-  }, [selectedCategory]);
+  // Filter notifications when category changes
+  const filteredNotifications = selectedCategory === "all"
+    ? notifications
+    : notifications.filter((notif) => notif.type === selectedCategory);
 
   return (
     <div className="space-y-4">
       <Header
-        title={`Notifications ${unreadCount > 0 ? `(${unreadCount})` : ''}`}
+        title={`Notifications ${unreadCount > 0 ? `(${unreadCount})` : ""}`}
         rightAction={
           <div className="flex space-x-3">
-            <button 
+            <button
               className="text-sm text-blue-600 font-medium flex items-center space-x-1"
               onClick={handleRefresh}
               disabled={refreshing}
             >
-              <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} />
+              <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} />
               <span>Refresh</span>
             </button>
-            <button 
+            <button
               className="text-sm text-blue-600 font-medium"
               onClick={handleMarkAllAsRead}
               disabled={unreadCount === 0}
@@ -274,6 +223,22 @@ const NotificationScreen: React.FC = () => {
       />
 
       <div className="px-4 space-y-4">
+        {/* Category Filter */}
+        <div className="flex space-x-2 overflow-x-auto pb-2">
+          {categories.map((category) => (
+            <button
+              key={category.key}
+              onClick={() => setSelectedCategory(category.key)}
+              className={`px-3 py-1 rounded-full text-sm font-medium whitespace-nowrap ${
+                selectedCategory === category.key
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              {category.label}
+            </button>
+          ))}
+        </div>
 
         {/* Loading State */}
         {loading && (
@@ -284,20 +249,20 @@ const NotificationScreen: React.FC = () => {
         )}
 
         {/* Notifications List */}
-        {!loading && notifications.length === 0 && (
+        {!loading && filteredNotifications.length === 0 && (
           <div className="text-center py-8">
             <Bell className="mx-auto text-gray-400 mb-4" size={48} />
             <p className="text-gray-500">No notifications found</p>
           </div>
         )}
 
-        {!loading && notifications.length > 0 && (
+        {!loading && filteredNotifications.length > 0 && (
           <div className="space-y-3">
-            {notifications.map((notif) => (
+            {filteredNotifications.map((notif) => (
               <div
                 key={notif.id}
                 className={`bg-white rounded-2xl p-4 border border-gray-100 relative ${
-                  !notif.isRead ? 'bg-blue-50 border-blue-200' : ''
+                  !notif.isRead ? "bg-blue-50 border-blue-200" : ""
                 }`}
               >
                 {notif.priority === "critical" && (
@@ -315,7 +280,7 @@ const NotificationScreen: React.FC = () => {
                     <div className="flex items-start justify-between">
                       <div className="flex-1 min-w-0">
                         <h4 className="text-sm font-medium text-gray-900 mb-1">
-                          {notif.title}
+                          {notif.title || notif.message}
                         </h4>
                         <p className="text-sm text-gray-700 mb-2">
                           {notif.message}
@@ -328,7 +293,7 @@ const NotificationScreen: React.FC = () => {
                         <Trash2 size={16} />
                       </button>
                     </div>
-                    
+
                     <div className="flex items-center justify-between mt-2">
                       <div className="flex items-center space-x-2">
                         <p className="text-xs text-gray-500 flex items-center">
@@ -341,10 +306,14 @@ const NotificationScreen: React.FC = () => {
                           </span>
                         )}
                       </div>
-                      
+
                       <div className="flex items-center space-x-2">
-                        {notif.priority && notif.priority !== 'medium' && (
-                          <span className={`text-xs px-2 py-1 rounded-full font-medium ${getPriorityColor(notif.priority)}`}>
+                        {notif.priority && notif.priority !== "medium" && (
+                          <span
+                            className={`text-xs px-2 py-1 rounded-full font-medium ${getPriorityColor(
+                              notif.priority
+                            )}`}
+                          >
                             {notif.priority}
                           </span>
                         )}
@@ -367,12 +336,10 @@ const NotificationScreen: React.FC = () => {
 
         {/* Emergency Contacts */}
         <div className="bg-white rounded-2xl p-4 border border-gray-100">
-          <h3 className="font-semibold text-gray-900 mb-3">
-            Emergency Contacts
-          </h3>
+          <h3 className="font-semibold text-gray-900 mb-3">Emergency Contacts</h3>
           <div className="grid grid-cols-2 gap-3">
             {emergencyContacts.map((contact, index) => (
-              <button 
+              <button
                 key={index}
                 className={`flex items-center justify-between p-3 rounded-xl transition-colors ${contact.bgColor}`}
               >

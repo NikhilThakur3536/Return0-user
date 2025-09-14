@@ -1,11 +1,16 @@
 // Types and Interfaces
 export interface Notification {
-  id: number;
+  id: string;
   type: "warning" | "info" | "success" | "emergency" | "health";
+  title?: string; // Optional title for notifications
   message: string;
   time: string;
   priority: "low" | "medium" | "high" | "critical";
+  isRead?: boolean; // Optional flag for read/unread status
+  hazardType?: string; // Optional hazard type (e.g., "flood", "fire")
 }
+
+export type ExtendedActiveTab = ActiveTab | "quickCheckin" | "groupStatus" | "emergencyContacts" | "tripDetails" | "addTrip" | "SOS";
 
 export interface GroupMember {
   id: number;
@@ -15,6 +20,7 @@ export interface GroupMember {
   location: string;
   avatar?: string;
 }
+
 
 export type SOSState = "inactive" | "swipe" | "sending" | "sent" | "waiting";
 export type ActiveTab = "home" | "map" | "notifications" | "profile" | "help" | "addTrip";

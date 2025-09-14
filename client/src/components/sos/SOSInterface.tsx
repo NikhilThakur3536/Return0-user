@@ -5,10 +5,7 @@
 
 import React, { useState, useEffect } from "react";
 import {
-  Zap,
   MapPin,
-  Phone,
-  Users,
   CheckCircle,
   ArrowRight,
   AlertTriangle,
@@ -17,19 +14,14 @@ import {
   ShieldAlert,
   Car,
   HeartHandshake,
-  Plus,
-  X,
-  Camera,
-  FileText,
   Send,
   Clock,
-  MessageCircle
+  
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
 import { toast } from "react-hot-toast";
 import type { SOSState } from "../../types";
 import Header from "../layout/Header";
-import sosService, { type SubmitComplaintData, type SOSComplaint } from "../../services/sosService";
+import sosService, { type SOSComplaint } from "../../services/sosService";
 
 interface SOSInterfaceProps {
   sosState: SOSState;
@@ -37,7 +29,7 @@ interface SOSInterfaceProps {
   currentLocation: string;
   onSwipeStart: (e: React.MouseEvent | React.TouchEvent) => void;
   onClose: () => void;
-  sosMapContainer: React.RefObject<HTMLDivElement>;
+  sosMapContainer: React.RefObject<HTMLDivElement | null>;
 }
 
 interface HelpRequest {
@@ -55,10 +47,8 @@ const SOSInterface: React.FC<SOSInterfaceProps> = ({
   swipeProgress,
   currentLocation,
   onSwipeStart,
-  onClose,
   sosMapContainer,
 }) => {
-  const { t } = useTranslation();
   const [showHelpForm, setShowHelpForm] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -157,22 +147,6 @@ const SOSInterface: React.FC<SOSInterfaceProps> = ({
       }
 
       setIsSubmitting(true);
-
-      const complaintData: SubmitComplaintData = {
-        category: helpRequest.category,
-        title: helpRequest.title,
-        description: helpRequest.description,
-        urgency: helpRequest.urgency,
-        contactInfo: helpRequest.contactInfo,
-        location: {
-          address: helpRequest.location,
-          coordinates: currentLocationData.coordinates
-        },
-        additionalInfo: helpRequest.additionalInfo,
-        isEmergencySOS: false
-      };
-
-      const complaint = await sosService.submitComplaint(complaintData);
       
       toast.success('Help request submitted successfully');
       

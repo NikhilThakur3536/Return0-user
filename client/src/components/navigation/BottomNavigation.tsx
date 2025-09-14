@@ -5,11 +5,11 @@
 
 import { Home, MapPin, Bell, User, AlertTriangle } from "lucide-react";
 import { useTranslation } from "../../hooks/useTranslation";
-import type { ActiveTab, SOSState } from "../../types";
+import type { ActiveTab, ExtendedActiveTab, SOSState } from "../../types";
 
 interface BottomNavigationProps {
-  activeTab: ActiveTab;
-  onTabChange: (tab: ActiveTab) => void;
+  activeTab: ExtendedActiveTab;
+  onTabChange: (tab: ExtendedActiveTab) => void; // Updated to ExtendedActiveTab
   onSOSPress: () => void;
   notificationCount: number;
   sosState: SOSState;
@@ -20,19 +20,20 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({
   onTabChange,
   onSOSPress,
   notificationCount,
+  sosState, // Include sosState to style SOS button
 }) => {
   const { t } = useTranslation();
 
   const navigationItems = [
-    { 
-      tab: "home" as ActiveTab, 
-      icon: Home, 
-      labelKey: "navigation.home"
+    {
+      tab: "home" as ActiveTab,
+      icon: Home,
+      labelKey: "navigation.home",
     },
-    { 
-      tab: "map" as ActiveTab, 
-      icon: MapPin, 
-      labelKey: "navigation.map"
+    {
+      tab: "map" as ActiveTab,
+      icon: MapPin,
+      labelKey: "navigation.map",
     },
     {
       tab: "notifications" as ActiveTab,
@@ -40,21 +41,21 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({
       labelKey: "navigation.notifications",
       badge: notificationCount,
     },
-    { 
-      tab: "profile" as ActiveTab, 
-      icon: User, 
-      labelKey: "navigation.profile"
+    {
+      tab: "profile" as ActiveTab,
+      icon: User,
+      labelKey: "navigation.profile",
     },
-    { 
-      tab: "SOS" as ActiveTab, 
-      icon: AlertTriangle, 
-      labelKey: "navigation.sos", 
-      isSpecial: true 
+    {
+      tab: "SOS" as ExtendedActiveTab, // Use ExtendedActiveTab for SOS
+      icon: AlertTriangle,
+      labelKey: "navigation.sos",
+      isSpecial: true,
     },
   ];
 
   return (
-<div className="w-full bg-white border-t border-gray-200 px-4 py-2 shadow-lg rounded-b-2xl Z-100">
+    <div className="w-full bg-white border-t border-gray-200 px-4 py-2 shadow-lg rounded-b-2xl z-100">
       <div className="flex justify-around items-center">
         {navigationItems.map(({ tab, icon: Icon, labelKey, badge, isSpecial }) => (
           <button
@@ -74,15 +75,15 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({
                 : isSpecial
                 ? "text-red-500 hover:text-red-700"
                 : "text-gray-500 hover:text-gray-900"
-            }`}
+            } ${isSpecial && sosState !== "inactive" ? "animate-pulse" : ""}`}
             aria-label={t(labelKey)}
           >
             <div className="relative">
               <Icon size={24} />
               {badge && badge > 0 && (
-                <span 
+                <span
                   className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
-                  aria-label={t('accessibility.notificationBadge', { count: badge })}
+                  aria-label={t("accessibility.notificationBadge", { count: badge })}
                 >
                   {badge}
                 </span>
