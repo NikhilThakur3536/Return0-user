@@ -2,15 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import {
-  User,
   Shield,
   Activity,
-  Smartphone,
   ChevronRight,
   Users,
   Navigation,
   Heart,
-  Globe,
   Bell,
   MapPin,
   HelpCircle,
@@ -83,14 +80,6 @@ const ProfileScreen: React.FC = () => {
     }
   };
 
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map(word => word.charAt(0))
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
 
   if (loading) {
     return (
