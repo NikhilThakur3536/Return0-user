@@ -13,6 +13,7 @@ interface LanguageSelectorProps {
   showFlag?: boolean;
   showNativeName?: boolean;
   compact?: boolean;
+  onSelect?: () => void; // Add onSelect prop
 }
 
 const LanguageSelector: React.FC<LanguageSelectorProps> = ({
@@ -20,6 +21,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   showFlag = true,
   showNativeName = true,
   compact = false,
+  onSelect, // Destructure onSelect
 }) => {
   const { i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
@@ -34,10 +36,15 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
 
       // Update document direction for RTL languages
       const selectedLang = getLanguageByCode(languageCode);
-      document.documentElement.dir = selectedLang?.rtl ? "rtl" : "ltr";
+      document.documentElement.dir = selectedLang?.rtl ? "ltr" : "ltr";
 
       // Store in localStorage
       localStorage.setItem("i18nextLng", languageCode);
+
+      // Call onSelect callback if provided
+      if (onSelect) {
+        onSelect();
+      }
     } catch (error) {
       console.error("Failed to change language:", error);
     }
