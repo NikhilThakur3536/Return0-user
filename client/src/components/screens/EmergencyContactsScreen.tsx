@@ -83,7 +83,7 @@ const EmergencyContactsScreen: React.FC<EmergencyContactsScreenProps> = ({ onBac
 
   const handleEdit = (contact: EmergencyContact) => {
     // In a real app, this would open an edit modal
-    toast.info('Edit functionality coming soon');
+    if(contact){toast.success('Edit functionality coming soon');}
   };
 
   const handleDelete = (contactId: number) => {
@@ -93,7 +93,7 @@ const EmergencyContactsScreen: React.FC<EmergencyContactsScreenProps> = ({ onBac
 
   const handleAddContact = () => {
     // In a real app, this would open an add contact modal
-    toast.info('Add contact functionality coming soon');
+    toast.success('Add contact functionality coming soon');
   };
 
   const getFilteredContacts = () => {
