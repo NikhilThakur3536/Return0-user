@@ -10,7 +10,6 @@ import {
   Calendar, 
   Users, 
   Clock, 
-  Edit3, 
   Share, 
   Navigation, 
   Star, 
@@ -35,7 +34,7 @@ const TripDetailsScreen: React.FC<TripDetailsScreenProps> = ({
   onBack,
   onTripCompleted
 }) => {
-  const { t, i18n } = useTranslation();
+  const {  i18n } = useTranslation();
   const [selectedTab, setSelectedTab] = useState<'overview' | 'members' | 'itinerary'>('overview');
   const [trip, setTrip] = useState<Trip | null>(null);
   const [loading, setLoading] = useState(true);

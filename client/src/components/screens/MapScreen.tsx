@@ -8,7 +8,7 @@ import mapboxgl from "mapbox-gl";
 import * as turf from "@turf/turf";
 import "mapbox-gl/dist/mapbox-gl.css";
 
-import { AlertTriangle, Locate, Navigation, Search, Users } from "lucide-react";
+import { AlertTriangle, Navigation,  Users } from "lucide-react";
 import Header from "../layout/Header";
 import GroupMemberItem from "../common/GroupMemberItem";
 import { useTranslation } from "react-i18next";

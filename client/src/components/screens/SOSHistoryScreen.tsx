@@ -10,12 +10,9 @@ import {
   Star,
   AlertTriangle,
   CheckCircle,
-  Filter,
   Search,
   ChevronRight,
   MapPin,
-  Phone,
-  User,
   Calendar,
   BarChart3
 } from 'lucide-react';
