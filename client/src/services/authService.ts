@@ -114,11 +114,13 @@ class AuthService {
   // Signup method
   async signup(data: SignupData): Promise<AuthResponse> {
     try {
+      const headers = new Headers({
+        'Content-Type': 'application/json',
+      });
+
       const response = await fetch(`${API_BASE_URL}/auth/signup`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify(data),
       });
 
@@ -139,11 +141,13 @@ class AuthService {
   // Login method (supports both email and phone)
   async login(data: LoginData): Promise<AuthResponse> {
     try {
+      const headers = new Headers({
+        'Content-Type': 'application/json',
+      });
+
       const response = await fetch(`${API_BASE_URL}/auth/signin`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify(data),
       });
 
@@ -165,12 +169,14 @@ class AuthService {
   async logout(): Promise<void> {
     try {
       if (this.token) {
+        const headers = new Headers({
+          'Content-Type': 'application/json',
+        });
+        headers.append('Authorization', `Bearer ${this.token}`);
+
         await fetch(`${API_BASE_URL}/auth/logout`, {
           method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${this.token}`,
-            'Content-Type': 'application/json',
-          },
+          headers,
         });
       }
     } catch (error) {
@@ -188,11 +194,12 @@ class AuthService {
     }
 
     try {
+      const headers = new Headers();
+      headers.append('Authorization', `Bearer ${this.token}`);
+
       const response = await fetch(`${API_BASE_URL}/auth/verify`, {
         method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${this.token}`,
-        },
+        headers,
       });
 
       if (!response.ok) {
@@ -278,14 +285,14 @@ class AuthService {
 
   // API request helper with auth headers
   async apiRequest(endpoint: string, options: RequestInit = {}): Promise<Response> {
-    const headers: HeadersInit = {
+    const headers = new Headers({
       'Content-Type': 'application/json',
-      ...options.headers,
-    };
+      ...(options.headers as Record<string, string> || {}),
+    });
 
     // Add authorization header if token exists
     if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
+      headers.append('Authorization', `Bearer ${this.token}`);
     }
 
     const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`;

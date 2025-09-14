@@ -44,6 +44,7 @@ import type { Notification } from "./types";
 import { useTranslation } from "react-i18next";
 import { supportedLanguages } from "./i18n/languages";
 import PhoneFrame from "./components/layout/PhoneFrame";
+import type { User } from "./services/authService";
 
 // Mapbox access token
 mapboxgl.accessToken = import.meta.env.VITE_REACT_APP_MAPBOX_TOKEN;
@@ -82,10 +83,10 @@ const SmartTouristApp: React.FC = () => {
   // Authentication state
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
-  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   // Trip state
-  const [ setActiveTrip] = useState<Trip | null>(null);
+  const [ activeTrip,setActiveTrip] = useState<Trip | null>(null);
   const [hasActiveTrip, setHasActiveTrip] = useState(false);
 
   // Check authentication status on app load
@@ -292,7 +293,7 @@ const SmartTouristApp: React.FC = () => {
       .addTo(mapRef.current);
 
     // Add group member markers
-    groupMembers.forEach((member, index) => {
+    groupMembers.forEach((member) => {
       const coords: [number, number] = [
         55.2708 + (Math.random() - 0.5) * 0.02,
         25.2048 + (Math.random() - 0.5) * 0.02,
