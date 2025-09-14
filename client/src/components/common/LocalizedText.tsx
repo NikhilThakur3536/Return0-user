@@ -1,8 +1,3 @@
-// =============================================================================
-// FILE: src/components/common/LocalizedText.tsx
-// Component for handling text with proper RTL/LTR support
-// =============================================================================
-
 import React from 'react';
 import { useTranslation } from '../../hooks/useTranslation';
 
@@ -11,7 +6,7 @@ interface LocalizedTextProps {
   values?: Record<string, any>;
   fallback?: string;
   className?: string;
-  as?: keyof JSX.IntrinsicElements;
+  as?: React.ElementType; // Use React.ElementType instead of keyof JSX.IntrinsicElements
   children?: React.ReactNode;
 }
 
@@ -20,7 +15,7 @@ const LocalizedText: React.FC<LocalizedTextProps> = ({
   values,
   fallback,
   className = '',
-  as: Component = 'span',
+  as: Component = 'span', // Component is now typed as React.ElementType
   children,
 }) => {
   const { t, isRTL } = useTranslation();
@@ -40,4 +35,3 @@ const LocalizedText: React.FC<LocalizedTextProps> = ({
 };
 
 export default LocalizedText;
-
