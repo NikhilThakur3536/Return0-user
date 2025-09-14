@@ -45,6 +45,30 @@ const fetchNotifications = async (): Promise<Notification[]> => {
   }
 };
 
+const handleMapHazardAlert = async (
+  hazardType: string,
+  message: string,
+  location?: { type: string; coordinates: [number, number]; address: string }
+): Promise<void> => {
+  try {
+    // Implement the API call to create a hazard notification
+    await fetch("/api/notifications/hazard", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        hazardType,
+        message,
+        location,
+      }),
+    });
+  } catch (error) {
+    console.error("Error creating hazard notification:", error);
+    throw error;
+  }
+};
+
 const getUnreadCount = async (): Promise<number> => {
   try {
     // Replace with actual API call
@@ -93,4 +117,5 @@ export default {
   markAsRead,
   markAllAsRead,
   deleteNotification,
+  handleMapHazardAlert
 };

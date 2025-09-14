@@ -89,98 +89,100 @@ const MapScreen: React.FC<MapScreenProps> = ({ groupMembers,mapContainer }) => {
 
       // ✅ Fetch hazards and add as circles
       const fetchHazards = async () => {
-        try {
-          const [resSachet, resLandslide] = await Promise.all([
-            fetch(`${import.meta.env.VITE_BASE_URL}/sachet`),
-            fetch(`${import.meta.env.VITE_BASE_URL}/landslide`),
-          ]);
-          const [sachetData, landslideData] = await Promise.all([
-            resSachet.json(),
-            resLandslide.json(),
-          ]);
+  try {
+    const [resSachet, resLandslide] = await Promise.all([
+      fetch(`${import.meta.env.VITE_BASE_URL}/sachet`),
+      fetch(`${import.meta.env.VITE_BASE_URL}/landslide`),
+    ]);
+    const [sachetData, landslideData] = await Promise.all([
+      resSachet.json(),
+      resLandslide.json(),
+    ]);
 
-          const features: any[] = [];
+    const features: GeoJSON.Feature<GeoJSON.Geometry>[] = []; // Explicitly type features
 
-          // Sachet alerts → 2km circles
-          sachetData.forEach((a: any) => {
-            if (!a.centroid) return;
-            const [lon, lat] = a.centroid.split(",").map(Number);
-            const circle = turf.circle([lon, lat], 2, {
-              units: "kilometers",
-              steps: 64,
-            });
-            features.push({
-              type: "Feature",
-              geometry: circle.geometry,
-              properties: { ...a, type: "Sachet" },
-            });
-          });
+    // Sachet alerts → 2km circles
+    sachetData.forEach((a: any) => {
+      if (!a.centroid) return;
+      const [lon, lat] = a.centroid.split(",").map(Number);
+      const circle = turf.circle([lon, lat], 2, {
+        units: "kilometers",
+        steps: 64,
+      });
+      features.push({
+        type: "Feature",
+        geometry: circle.geometry,
+        properties: { ...a, type: "Sachet" },
+      });
+    });
 
-          // Landslides → 2km circles
-          landslideData.forEach((ls: any) => {
-            if (!ls.lat || !ls.lon) return;
-            const circle = turf.circle([ls.lon, ls.lat], 2, {
-              units: "kilometers",
-              steps: 64,
-            });
-            features.push({
-              type: "Feature",
-              geometry: circle.geometry,
-              properties: { ...ls, type: "Landslide" },
-            });
-          });
+    // Landslides → 2km circles
+    landslideData.forEach((ls: any) => {
+      if (!ls.lat || !ls.lon) return;
+      const circle = turf.circle([ls.lon, ls.lat], 2, {
+        units: "kilometers",
+        steps: 64,
+      });
+      features.push({
+        type: "Feature",
+        geometry: circle.geometry,
+        properties: { ...ls, type: "Landslide" },
+      });
+    });
 
-          const hazardGeojson = { type: "FeatureCollection", features };
+    // Explicitly type hazardGeojson as GeoJSON.FeatureCollection
+    const hazardGeojson: GeoJSON.FeatureCollection = {
+      type: "FeatureCollection",
+      features,
+    };
 
-          mapRef.current!.addSource("hazards", {
-            type: "geojson",
-            data: hazardGeojson,
-          });
+    mapRef.current!.addSource("hazards", {
+      type: "geojson",
+      data: hazardGeojson,
+    });
 
-          // Fill layer
-          mapRef.current!.addLayer({
-            id: "hazard-fill",
-            type: "fill",
-            source: "hazards",
-            paint: {
-              "fill-color": [
-                "match",
-                ["get", "type"],
-                "Sachet",
-                "#fbb03b",
-                "Landslide",
-                "#8B4513",
-                "#888",
-              ],
-              "fill-opacity": 0.25,
-            },
-          });
+    // Rest of the layer code remains the same
+    mapRef.current!.addLayer({
+      id: "hazard-fill",
+      type: "fill",
+      source: "hazards",
+      paint: {
+        "fill-color": [
+          "match",
+          ["get", "type"],
+          "Sachet",
+          "#fbb03b",
+          "Landslide",
+          "#8B4513",
+          "#888",
+        ],
+        "fill-opacity": 0.25,
+      },
+    });
 
-          // Outline layer (same color, darker)
-          mapRef.current!.addLayer({
-            id: "hazard-outline",
-            type: "line",
-            source: "hazards",
-            paint: {
-              "line-color": [
-                "match",
-                ["get", "type"],
-                "Sachet",
-                "#c88617",
-                "Landslide",
-                "#5a2f0e",
-                "#444",
-              ],
-              "line-width": 2,
-            },
-          });
+    mapRef.current!.addLayer({
+      id: "hazard-outline",
+      type: "line",
+      source: "hazards",
+      paint: {
+        "line-color": [
+          "match",
+          ["get", "type"],
+          "Sachet",
+          "#c88617",
+          "Landslide",
+          "#5a2f0e",
+          "#444",
+        ],
+        "line-width": 2,
+      },
+    });
 
-          geojsonDataRef.current.hazards = hazardGeojson;
-        } catch (err) {
-          console.error("Failed to fetch hazards:", err);
-        }
-      };
-
+    geojsonDataRef.current.hazards = hazardGeojson;
+  } catch (err) {
+    console.error("Failed to fetch hazards:", err);
+  }
+};
       await fetchHazards();
 
       // ✅ Marker dragend handler with notification creation
