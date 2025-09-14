@@ -22,10 +22,8 @@ interface NotificationScreenProps {
 }
 
 const NotificationScreen: React.FC<NotificationScreenProps> = ({ notifications }) => {
-  // const { t } = useTranslation();
   const [unreadCount, setUnreadCount] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const getNotificationIcon = (type: Notification["type"]) => {
@@ -127,28 +125,36 @@ const NotificationScreen: React.FC<NotificationScreenProps> = ({ notifications }
 
   // Load unread count
   const loadUnreadCount = async () => {
+    setLoading(true);
     try {
       const count = await notificationService.getUnreadCount();
       setUnreadCount(count);
     } catch (error) {
       console.error("Failed to load unread count:", error);
+      toast.error("Failed to load unread count");
+    } finally {
+      setLoading(false);
     }
   };
 
   // Mark notification as read
   const handleMarkAsRead = async (notificationId: string) => {
+    setLoading(true);
     try {
       await notificationService.markAsRead(notificationId);
-      await loadUnreadCount();
+      await loadUnreadCount(); // Refresh unread count after marking as read
       toast.success("Notification marked as read");
     } catch (error) {
       console.error("Failed to mark notification as read:", error);
       toast.error("Failed to mark as read");
+    } finally {
+      setLoading(false);
     }
   };
 
   // Mark all as read
   const handleMarkAllAsRead = async () => {
+    setLoading(true);
     try {
       await notificationService.markAllAsRead();
       setUnreadCount(0);
@@ -156,11 +162,14 @@ const NotificationScreen: React.FC<NotificationScreenProps> = ({ notifications }
     } catch (error) {
       console.error("Failed to mark all as read:", error);
       toast.error("Failed to mark all as read");
+    } finally {
+      setLoading(false);
     }
   };
 
   // Delete notification
   const handleDeleteNotification = async (notificationId: string) => {
+    setLoading(true);
     try {
       await notificationService.deleteNotification(notificationId);
       const deletedNotification = notifications.find((n) => n.id === notificationId);
@@ -171,19 +180,22 @@ const NotificationScreen: React.FC<NotificationScreenProps> = ({ notifications }
     } catch (error) {
       console.error("Failed to delete notification:", error);
       toast.error("Failed to delete notification");
+    } finally {
+      setLoading(false);
     }
   };
 
   // Refresh notifications
   const handleRefresh = async () => {
-    setRefreshing(true);
+    setLoading(true);
     try {
       await loadUnreadCount();
       toast.success("Notifications refreshed");
     } catch (error) {
+      console.error("Failed to refresh notifications:", error);
       toast.error("Failed to refresh");
     } finally {
-      setRefreshing(false);
+      setLoading(false);
     }
   };
 
@@ -206,15 +218,15 @@ const NotificationScreen: React.FC<NotificationScreenProps> = ({ notifications }
             <button
               className="text-sm text-blue-600 font-medium flex items-center space-x-1"
               onClick={handleRefresh}
-              disabled={refreshing}
+              disabled={loading}
             >
-              <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} />
+              <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
               <span>Refresh</span>
             </button>
             <button
               className="text-sm text-blue-600 font-medium"
               onClick={handleMarkAllAsRead}
-              disabled={unreadCount === 0}
+              disabled={unreadCount === 0 || loading}
             >
               Mark All Read
             </button>
@@ -234,6 +246,7 @@ const NotificationScreen: React.FC<NotificationScreenProps> = ({ notifications }
                   ? "bg-blue-600 text-white"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
+              disabled={loading}
             >
               {category.label}
             </button>
@@ -289,6 +302,7 @@ const NotificationScreen: React.FC<NotificationScreenProps> = ({ notifications }
                       <button
                         onClick={() => handleDeleteNotification(notif.id)}
                         className="text-gray-400 hover:text-red-500 ml-2"
+                        disabled={loading}
                       >
                         <Trash2 size={16} />
                       </button>
@@ -321,6 +335,7 @@ const NotificationScreen: React.FC<NotificationScreenProps> = ({ notifications }
                           <button
                             onClick={() => handleMarkAsRead(notif.id)}
                             className="text-xs text-blue-600 hover:text-blue-800"
+                            disabled={loading}
                           >
                             Mark as read
                           </button>
@@ -342,6 +357,7 @@ const NotificationScreen: React.FC<NotificationScreenProps> = ({ notifications }
               <button
                 key={index}
                 className={`flex items-center justify-between p-3 rounded-xl transition-colors ${contact.bgColor}`}
+                disabled={loading}
               >
                 <div className="flex items-center space-x-2">
                   <contact.icon className={contact.iconColor} size={18} />

@@ -133,14 +133,13 @@ const SmartTouristApp: React.FC = () => {
     }
   };
 
-  if(currentUser){
+  useEffect(()=>{if(currentUser){
     toast.success("User loged in")
   }
   if(activeTrip && hasActiveTrip){
     toast.success("active trip")
-  }else{
-    toast.error("not active trip")
   }
+  },[])
 
   // State management
   const [activeTab, setActiveTab] = useState<ExtendedActiveTab>("home");
