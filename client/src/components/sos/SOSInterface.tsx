@@ -1,8 +1,3 @@
-// =============================================================================
-// UPDATED SOS INTERFACE WITH BACKEND INTEGRATION
-// File path: src/components/sos/SOSInterface.tsx
-// =============================================================================
-
 import React, { useState, useEffect } from "react";
 import {
   MapPin,
@@ -16,12 +11,12 @@ import {
   HeartHandshake,
   Send,
   Clock,
-  
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import type { SOSState } from "../../types";
 import Header from "../layout/Header";
 import sosService, { type SOSComplaint } from "../../services/sosService";
+import authService from "../../services/authService";
 
 interface SOSInterfaceProps {
   sosState: SOSState;
@@ -58,6 +53,7 @@ const SOSInterface: React.FC<SOSInterfaceProps> = ({
     address: string;
     coordinates?: [number, number];
   }>({ address: currentLocation });
+  const API_BASE_URL = import.meta.env.VITE_BASE_URL
 
   const [helpRequest, setHelpRequest] = useState<HelpRequest>({
     category: '',
@@ -147,7 +143,31 @@ const SOSInterface: React.FC<SOSInterfaceProps> = ({
       }
 
       setIsSubmitting(true);
-      
+
+      // Prepare the request body based on the cURL data
+      const requestBody = {
+        category: helpRequest.category,
+        title: helpRequest.title,
+        description: helpRequest.description,
+        urgency: helpRequest.urgency,
+        contactInfo: helpRequest.contactInfo,
+        location: {
+          address: helpRequest.location
+        },
+        additionalInfo: helpRequest.additionalInfo,
+        isEmergencySOS: false
+      };
+
+      // Make the API request using Fetch
+      const response = await authService.apiRequest(`${API_BASE_URL}/sos/submit`, {
+        method: 'POST',
+        body: JSON.stringify(requestBody)
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       toast.success('Help request submitted successfully');
       
       // Reset form and go back to main view

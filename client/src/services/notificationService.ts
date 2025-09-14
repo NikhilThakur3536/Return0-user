@@ -1,10 +1,14 @@
 import { type Notification } from "../types";
+import authService from "./authService";
 
 
 const fetchNotifications = async (): Promise<Notification[]> => {
+
+  
   try {
     // Replace with actual API call
-    const response = await fetch("/api/notifications");
+        const API_BASE_URL= import.meta.env.VITE_BASE_URL
+    const response = await fetch(`${API_BASE_URL}/notifications`);
     const data: Notification[] = await response.json();
     return data;
   } catch (error) {
@@ -51,8 +55,9 @@ const handleMapHazardAlert = async (
   location?: { type: string; coordinates: [number, number]; address: string }
 ): Promise<void> => {
   try {
+    const API_BASE_URL= import.meta.env.VITE_BASE_URL
     // Implement the API call to create a hazard notification
-    await fetch("/api/notifications/hazard", {
+    await fetch(`${API_BASE_URL}/notifications/hazard`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -70,9 +75,10 @@ const handleMapHazardAlert = async (
 };
 
 const getUnreadCount = async (): Promise<number> => {
+  const API_BASE_URL= import.meta.env.VITE_BASE_URL
   try {
     // Replace with actual API call
-    const response = await fetch("/api/notifications/unread-count");
+    const response = await authService.apiRequest(`${API_BASE_URL}/notifications`,{method:"GET"});
     const data = await response.json();
     return data.count;
   } catch (error) {
@@ -104,7 +110,8 @@ const markAllAsRead = async (): Promise<void> => {
 const deleteNotification = async (notificationId: string): Promise<void> => {
   try {
     // Replace with actual API call
-    await fetch(`/api/notifications/${notificationId}`, { method: "DELETE" });
+        const API_BASE_URL= import.meta.env.VITE_BASE_URL
+    await fetch(`${API_BASE_URL}/notifications/${notificationId}`, { method: "DELETE" });
   } catch (error) {
     console.error("Error deleting notification:", error);
     throw error;
