@@ -9,7 +9,7 @@ import { Bell, Heart, MapPin, Phone, QrCode, Shield, Star, Users, Plus, Calendar
 import { toast } from "react-hot-toast";
 import QuickActionButton from "../common/QuickActionButton";
 import StatusCard from "../common/StatusCard";
-import { getTimeBasedGreeting, formatNumber, getRelativeTime } from "../../utils/i18n";
+import { getTimeBasedGreeting, formatNumber } from "../../utils/i18n";
 import tripService from "../../services/tripService";
 import authService from "../../services/authService";
 import type { GroupMember, Notification } from "../../types";
@@ -31,7 +31,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   currentLocation,
   safetyScore,
   groupMembers,
-  notifications,
   onAddTripPress,
   onQuickCheckinPress,
   onGroupStatusPress,

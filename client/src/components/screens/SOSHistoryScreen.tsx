@@ -1,8 +1,3 @@
-// =============================================================================
-// SOS COMPLAINT HISTORY SCREEN
-// File path: src/components/screens/SOSHistoryScreen.tsx
-// =============================================================================
-
 import React, { useState, useEffect } from 'react';
 import {
   Clock,
@@ -134,15 +129,14 @@ const SOSHistoryScreen: React.FC<SOSHistoryScreenProps> = ({
     complaint.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  console.log("filteredComplaints", filteredComplaints)
+
   return (
     <div className="space-y-4">
       <Header
         title="Help Request History"
-        leftAction={{
-          icon: ChevronRight,
-          onClick: onBack,
-          className: "rotate-180"
-        }}
+        showBack={true}
+        onBack={onBack}
         rightAction={
           <button className="text-blue-600 font-medium">
             Export
@@ -275,9 +269,9 @@ const SOSHistoryScreen: React.FC<SOSHistoryScreenProps> = ({
                   </div>
 
                   {/* Description */}
-                  <p className="text-sm text-gray-700 line-clamp-2">
+                  {<p className="text-sm text-gray-700 line-clamp-2">
                     {complaint.description}
-                  </p>
+                  </p>}
 
                   {/* Details */}
                   <div className="flex items-center justify-between text-xs text-gray-500">
@@ -306,18 +300,18 @@ const SOSHistoryScreen: React.FC<SOSHistoryScreenProps> = ({
                   </div>
 
                   {/* Communication indicator */}
-                  {complaint.communications && complaint.communications.length > 0 && (
+                  { complaint && (
                     <div className="flex items-center text-xs text-blue-600">
                       <MessageCircle size={12} className="mr-1" />
-                      {complaint.communications.length} message{complaint.communications.length !== 1 ? 's' : ''}
+                      {complaint.description}
                     </div>
                   )}
 
                   {/* Feedback indicator */}
-                  {complaint.feedback?.rating && (
+                  {complaint && (
                     <div className="flex items-center text-xs text-yellow-600">
                       <Star size={12} className="mr-1" />
-                      Rated {complaint.feedback.rating}/5
+                      Rated {complaint.description}/5
                     </div>
                   )}
                 </div>

@@ -11,7 +11,7 @@ import {
   Navigate,
   useNavigate,
 } from "react-router-dom";
-import { Toaster } from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "./i18n";
@@ -98,6 +98,7 @@ const SmartTouristApp: React.FC = () => {
           if (isValid) {
             setIsAuthenticated(true);
             setCurrentUser(authService.getUser());
+            
             // Load active trip after authentication
             await loadActiveTrip();
           } else {
@@ -131,6 +132,15 @@ const SmartTouristApp: React.FC = () => {
       setActiveTrip(null);
     }
   };
+
+  if(currentUser){
+    toast.success("User loged in")
+  }
+  if(activeTrip && hasActiveTrip){
+    toast.success("active trip")
+  }else{
+    toast.error("not active trip")
+  }
 
   // State management
   const [activeTab, setActiveTab] = useState<ExtendedActiveTab>("home");
@@ -190,23 +200,25 @@ const SmartTouristApp: React.FC = () => {
     navigate("/app"); // Navigate to main app
   };
 
-  const handleLogout = async () => {
-    try {
-      await authService.logout();
-    } catch (error) {
-      console.error("Logout error:", error);
-    } finally {
-      setIsAuthenticated(false);
-      setCurrentUser(null);
-      setActiveTab("home");
-      setSosState("inactive");
-      setSwipeProgress(0);
-      setIsDragging(false);
-      setHasActiveTrip(false);
-      setActiveTrip(null);
-      navigate("/login"); // Navigate to login page
-    }
-  };
+  // const handleLogout = async () => {
+  //   try {
+  //     await authService.logout();
+  //   } catch (error) {
+  //     console.error("Logout error:", error);
+  //   } finally {
+  //     setIsAuthenticated(false);
+  //     setCurrentUser(null);
+  //     setActiveTab("home");
+  //     setSosState("inactive");
+  //     setSwipeProgress(0);
+  //     setIsDragging(false);
+  //     setHasActiveTrip(false);
+  //     setActiveTrip(null);
+  //     navigate("/login"); // Navigate to login page
+  //   }
+  // };
+
+  
 
   // Set up listener for auth state changes
   useEffect(() => {
